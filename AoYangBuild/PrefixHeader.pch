@@ -1,0 +1,35 @@
+//
+//  PrefixHeader.pch
+//  AoYangBuild
+//
+//  Created by wl on 15/10/19.
+//  Copyright © 2015年 saint. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+#import "UIView+Frame.h"
+
+#import <SVProgressHUD.h>
+
+
+
+#define SCREEN_WIDTH ([UIScreen mainScreen].bounds.size.width)
+#define SCREEN_HEIGHT ([UIScreen mainScreen].bounds.size.height)
+
+//颜色
+#define RGB(_R,_G,_B,_A) [UIColor colorWithRed:_R/255.0f green:_G/255.0f blue:_B/255.0f alpha:_A]
+
+// 随机色
+#define  randomColor XWColor(arc4random_uniform(256), arc4random_uniform(256), arc4random_uniform(256))
+#define XWColor(_R,_G,_B) [UIColor colorWithRed:_R/255.0f green:_G/255.0f blue:_B/255.0f alpha:1]
+
+//app主题色
+#define appColor    [UIColor colorWithRed:56/255.0f green:123/255.0f blue:230/255.0f alpha:1]
+//控制器颜色
+#define vcColor   [UIColor colorWithRed:0.93 green:0.93 blue:0.93 alpha:1]
+//系统版本
+#define IOS8 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
+
+
+#endif /* PrefixHeader_pch */
