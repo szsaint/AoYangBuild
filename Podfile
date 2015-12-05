@@ -1,0 +1,6 @@
+platform :ios, '7.0'
+pod 'MJRefresh'
+pod 'SDWebImage'
+pod 'MBProgressHUD'
+pod 'YTKNetwork'
+pod 'SVProgressHUD'
