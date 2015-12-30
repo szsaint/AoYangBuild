@@ -6,8 +6,7 @@
 //  Copyright © 2015年 saint. All rights reserved.
 // 已付
 
-#import <UIKit/UIKit.h>
-
-@interface OrderHistoryController : UITableViewController
+#import "AYBaseVC.h"
+@interface OrderHistoryController : AYBaseVC
 
 @end

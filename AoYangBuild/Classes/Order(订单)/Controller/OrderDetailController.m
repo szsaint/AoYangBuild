@@ -40,9 +40,10 @@
     [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     ChargeApi *api =[[ChargeApi alloc]initWithNeed];
     [api startWithCompletionBlockWithSuccess:^(YTKBaseRequest *request) {
+        [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
         id result =[request responseJSONObject];
         if ([result isKindOfClass:[NSArray class]]) {
-            [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+            [self showEmpty];
             return ;
         }
         NSDictionary *resultDic =result;
@@ -54,7 +55,6 @@
         }
         self.resultArray =arrM;
         [self.tableView reloadData];
-        [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
     } failure:^(YTKBaseRequest *request) {
         id result =[request responseJSONObject];
         NSLog(@"%@",result);

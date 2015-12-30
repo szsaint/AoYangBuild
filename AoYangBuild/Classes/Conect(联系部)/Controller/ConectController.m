@@ -13,28 +13,37 @@
 #import "RightTableViewCell.h"
 #import "SearchCompanyApi.h"
 #import "ConectModel.h"
-#import <MBProgressHUD.h>
 #import <AFNetworking.h>
 #import "UserManeger.h"
+#import "TitleView.h"
+
+#import "SubLBXScanViewController.h"
+#import "MyQRViewController.h"
+#import "LBXScanView.h"
+#import <objc/message.h>
+//#import "ScanResultViewController.h"
+#import "LBXScanResult.h"
+#import "LBXScanWrapper.h"
+
+
 @interface ConectController ()<UITableViewDelegate,UITableViewDataSource>
 @property(nonatomic,strong)UITableView *leftTableView;
 @property(nonatomic,strong)NSArray *leftArray;
 @property(nonatomic,strong)NSIndexPath *leftCurentIndexPath;
-
-
-
-
-
 @property(nonatomic,strong)UITableView *righttableView;
 @property(nonatomic,strong)NSArray *rightArray;
+@property(nonatomic,strong)TitleView *titleView;
 
 @end
 
-@implementation ConectController
+@implementation ConectController{
+    BOOL isFresh;
+    BOOL isBegin;
+}
 
 -(instancetype)init{
     if (self=[super init]) {
-        self.title=@"联系部";
+        self.title=@"通讯录";
         self.tabBarItem.image=[UIImage imageNamed:@"Contact Icon（not Selected）"];
     }
     return self;
@@ -49,7 +58,6 @@
     [self loadData];
 }
 -(void)loadData{
-    [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     NSString *companyID =[[NSUserDefaults standardUserDefaults]objectForKey:@"companyID"];
     SearchCompanyApi *api =[[SearchCompanyApi alloc]initWithCompany:companyID];
     [api startWithCompletionBlockWithSuccess:^(YTKBaseRequest *request) {
@@ -70,34 +78,23 @@
             [arrM addObject:model];
         }
         self.rightArray =arrM;
-        [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+        [self.titleView.animateView stopAnimating];
+        isFresh =NO;
         [self.righttableView reloadData];
     } failure:^(YTKBaseRequest *request) {
         id reslut =[request responseJSONObject];
         NSLog(@"%@",reslut);
-        [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+        [self.titleView.animateView stopAnimating];
+        isFresh =NO;
 
     }];
 }
 -(void)setUI{
-    UIButton *rightBtn=[[UIButton alloc]initWithFrame:CGRectMake(0, 0, 40, 40)];
-    [rightBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [rightBtn setTitle:@"刷新" forState:UIControlStateNormal];
-    [rightBtn addTarget:self action:@selector(rightBtnOnClick:) forControlEvents:UIControlEventTouchUpInside];
-    self.navigationItem.rightBarButtonItem=[[UIBarButtonItem alloc]initWithCustomView:rightBtn];
-    
-    //搭建leftTableView  rightTableView
-    //279  0.744
-//    CGFloat rightWW =SCREEN_WIDTH*0.744;
-//    CGFloat leftWW =SCREEN_WIDTH-rightWW;
-//    self.leftTableView=[[UITableView alloc]initWithFrame:CGRectMake(0, 0, leftWW, SCREEN_HEIGHT-49-64)];
-//    self.leftTableView.showsVerticalScrollIndicator=NO;
-//    self.leftTableView.backgroundColor=[UIColor lightTextColor];
-//    self.leftTableView.dataSource=self;
-//    self.leftTableView.delegate=self;
-//    self.leftTableView.tableFooterView=[[UIView alloc]init];
-//    //self.leftTableView.bounces=NO;
-//    [self.view addSubview:self.leftTableView];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(roleChange) name:@"roleChange" object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(roleChange) name:@"guard" object:nil];
+    TitleView *titleView =[[TitleView alloc]initWithTitle:@"通讯录"];
+    self.navigationItem.titleView =titleView;
+    self.titleView=titleView;
     
     self.righttableView =[[UITableView alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT-64-49)];
     self.righttableView.backgroundColor=[UIColor whiteColor];
@@ -106,20 +103,35 @@
     self.righttableView.tableFooterView=[[UIView alloc]init];
     [self.view addSubview:self.righttableView];
     
+    [self roleChange];
+  
+}
+-(void)roleChange{
     if ([[NSUserDefaults standardUserDefaults]objectForKey:@"company"]) {
-        UIButton *left =[[UIButton alloc]initWithFrame:CGRectMake(0, 0, 40, 30)];
-        [left setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [left setTitle:@"其他" forState:UIControlStateNormal];
+        UIButton *left =[[UIButton alloc]initWithFrame:CGRectMake(0, 0, 30, 30)];
+        [left setImage:[UIImage imageNamed:@"more"] forState:UIControlStateNormal];
         [left addTarget:self action:@selector(leftBtnOnClick:) forControlEvents:UIControlEventTouchUpInside];
         self.navigationItem.leftBarButtonItem =[[UIBarButtonItem alloc]initWithCustomView:left];
+    }else if ([[NSUserDefaults standardUserDefaults]objectForKey:@"guard"]) {
+        UIButton *right =[[UIButton alloc]initWithFrame:CGRectMake(0, 0, 30, 30)];
+        [right setImage:[UIImage imageNamed:@"saomiao"] forState:UIControlStateNormal];
+        [right addTarget:self action:@selector(rightBtnOnClick:) forControlEvents:UIControlEventTouchUpInside];
+        self.navigationItem.rightBarButtonItem =[[UIBarButtonItem alloc]initWithCustomView:right];
+        
+        UIButton *left =[[UIButton alloc]initWithFrame:CGRectMake(0, 0, 30, 30)];
+        [left setImage:[UIImage imageNamed:@"more"] forState:UIControlStateNormal];
+        [left addTarget:self action:@selector(leftBtnOnClick:) forControlEvents:UIControlEventTouchUpInside];
+        self.navigationItem.leftBarButtonItem =[[UIBarButtonItem alloc]initWithCustomView:left];
+
+    }else{
+        self.navigationItem.rightBarButtonItem =nil;
+        self.navigationItem.leftBarButtonItem =nil;
     }
+
+    
 }
 -(void)rightBtnOnClick:(UIButton *)sender{
-    if ([[NSUserDefaults standardUserDefaults]objectForKey:@"companyID"]) {
-        [self loadData];
-    }else{
-        [self login];
-    }
+    [self ZhiFuBaoStyle];
 }
 -(void)leftBtnOnClick:(UIButton *)sender{
     AYSearchController *searchVC =[[AYSearchController alloc]init];
@@ -198,7 +210,7 @@
     return 0;
 }
 -(void)login{
-    MBProgressHUD *hud =[MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    [self.titleView.animateView startAnimating];
     NSString *base64LoginString =[[NSUserDefaults standardUserDefaults]objectForKey:@"basekey"];
     
     AFHTTPRequestOperationManager *manager =[AFHTTPRequestOperationManager manager];
@@ -206,18 +218,17 @@
     AFHTTPRequestOperation *opration = [manager GET:@"http://112.80.40.185/wp-json/users/me" parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
         id result =responseObject;
         NSLog(@"%@",result);
-        [hud hide:YES];
-        
+        [self.titleView.animateView stopAnimating];
         //保存用户信息
         [UserManeger saveUserLoginInfo:result baseKey:base64LoginString];
         [self loadData];
         [[NSNotificationCenter defaultCenter]postNotificationName:@"creatSuccess" object:nil];
 
     } failure:^(AFHTTPRequestOperation * _Nullable operation, NSError * _Nonnull error) {
-        [hud hide:YES];
+        [self.titleView.animateView stopAnimating];
+        isFresh =NO;
         id result =operation.responseObject;
         NSLog(@"%@",result);
-        [hud hide:YES];
         
         
     }];
@@ -238,5 +249,73 @@
     
 }
 
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (scrollView==self.righttableView) {
+        CGFloat offy =scrollView.contentOffset.y;
+        if (!isBegin&&offy<-50&&!isFresh) {
+            isFresh=YES;
+            isBegin =YES;
+            [self animatRefresh];
+        }
+    }
+}
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+    if (isBegin) {
+        isBegin=NO;
+    }
+}
+-(void)animatRefresh{
+    [self.titleView.animateView startAnimating];
+    [self login];
+
+}
+-(void)dealloc{
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:@"roleChange" object:nil];
+}
+
+#pragma mark --模仿支付宝
+- (void)ZhiFuBaoStyle
+{
+    //设置扫码区域参数
+    LBXScanViewStyle *style = [[LBXScanViewStyle alloc]init];
+    style.centerUpOffset = 60;
+    style.xScanRetangleOffset = 30;
+    
+    if ([UIScreen mainScreen].bounds.size.height <= 480 )
+    {
+        //3.5inch 显示的扫码缩小
+        style.centerUpOffset = 40;
+        style.xScanRetangleOffset = 20;
+    }
+    
+    
+    style.alpa_notRecoginitonArea = 0.6;
+    
+    style.photoframeAngleStyle = LBXScanViewPhotoframeAngleStyle_Inner;
+    style.photoframeLineW = 2.0;
+    style.photoframeAngleW = 16;
+    style.photoframeAngleH = 16;
+    
+    style.isNeedShowRetangle = NO;
+    
+    style.anmiationStyle = LBXScanViewAnimationStyle_NetGrid;
+    
+    //使用的支付宝里面网格图片
+    UIImage *imgFullNet = [UIImage imageNamed:@"CodeScan.bundle/qrcode_scan_full_net"];
+    
+    
+    style.animationImage = imgFullNet;
+    
+    
+    [self openScanVCWithStyle:style];
+}
+- (void)openScanVCWithStyle:(LBXScanViewStyle*)style
+{
+    SubLBXScanViewController *vc = [SubLBXScanViewController new];
+    vc.style = style;
+    //vc.isOpenInterestRect = YES;
+    vc.hidesBottomBarWhenPushed=YES;
+    [self.navigationController pushViewController:vc animated:YES];
+}
 
 @end

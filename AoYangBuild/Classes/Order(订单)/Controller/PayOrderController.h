@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-
+@class OrderSpeedModel;
 @interface PayOrderController : UIViewController
+@property (nonatomic,strong)OrderSpeedModel *model;
 
 @end

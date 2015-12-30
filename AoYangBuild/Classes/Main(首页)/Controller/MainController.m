@@ -10,7 +10,8 @@
 #import "NotificationController.h"
 
 #import "AYSegment.h"
-#import "AYHeaderView.h"
+//#import "AYHeaderView.h"
+#import <SDCycleScrollView.h>
 #import "AYArticleCell.h"
 
 #import "AYArticleFrameModel.h"
@@ -21,12 +22,13 @@
 #import <MJRefresh.h>
 
 #import "NewsApi.h"
+#import "MainModel.h"
 
 
 
 
 
-@interface MainController ()<AYSegmentDelgate,UITableViewDelegate,UITableViewDataSource,AYHeaderViewDelegate>
+@interface MainController ()<AYSegmentDelgate,UITableViewDelegate,UITableViewDataSource,SDCycleScrollViewDelegate>
 @property(nonatomic,strong)UITableView *tableView;
 @property(nonatomic,strong)UIScrollView *backScroll;
 
@@ -42,7 +44,7 @@
 }
 -(id)init{
     if (self=[super init]) {
-        self.title=@"文章";
+        self.title=@"新闻";
         self.tabBarItem.image=[UIImage imageNamed:@"Home icon（not Selected）"];
     }
     return self;
@@ -63,11 +65,21 @@
         if (result==nil||result.count==0) {
             return ;
         }else{
+            NSMutableArray *titleArrM =[NSMutableArray array];
+            NSMutableArray *imageArrM =[NSMutableArray array];
+            for (int i =0; i<result.count; i++) {
+                HeaderModel *model =[[HeaderModel alloc]initWithDictionary:result[i]];
+                [titleArrM addObject:model.title];
+                [imageArrM addObject:model.featured_image.source];
+                
+            }
             //header
-            AYHeaderView *header =[[AYHeaderView alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 230)];
-            header.array=result;
-            header.delegate=self;
-            self.tableView.tableHeaderView=header;
+        SDCycleScrollView *header =[SDCycleScrollView cycleScrollViewWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 200) imageURLStringsGroup:imageArrM];
+        header.titlesGroup=titleArrM;
+        header.pageControlAliment =SDCycleScrollViewPageContolAlimentRight;
+        header.delegate=self;
+        header.pageControlDotSize =CGSizeMake(5, 5);
+        self.tableView.tableHeaderView =header;
         }
         [self loadDate];
     } failure:^(YTKBaseRequest *request) {
@@ -227,12 +239,11 @@
     
 }
 #pragma mark headerViewOnClick delegate
--(void)AYHeaderView:(AYHeaderView *)header clickOnIndex:(NSInteger)index{
+-(void)cycleScrollView:(SDCycleScrollView *)cycleScrollView didSelectItemAtIndex:(NSInteger)index{
     AYArticleDetailController *detailVC =[[AYArticleDetailController alloc]init];
     NSDictionary *dic =self.headerResultArr[index];
     detailVC.detailDic=dic;
     detailVC.hidesBottomBarWhenPushed=YES;
     [self.navigationController pushViewController:detailVC animated:YES];
-
 }
 @end

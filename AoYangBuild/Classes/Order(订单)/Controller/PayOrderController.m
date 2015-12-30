@@ -7,11 +7,14 @@
 //
 
 #import "PayOrderController.h"
+#import <BeeCloud.h>
+#import "OrderSpeedModel.h"
+static NSString * const billTitle = @"澳洋相应费用收取";
 
 #define marginLeft 30
 #define cellH   60
 
-@interface PayOrderController ()<UITableViewDelegate,UITableViewDataSource>
+@interface PayOrderController ()<UITableViewDelegate,UITableViewDataSource,BeeCloudDelegate>
 @property (nonatomic,strong)UITableView *tableView;
 
 @property (nonatomic,strong)UIView *zhifubaoCell;
@@ -26,6 +29,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.currentSelectedIndex =-1;
     self.title=@"在线支付";
     self.view.backgroundColor=vcColor;
     [self addObserver:self forKeyPath:@"currentSelectedIndex" options:NSKeyValueObservingOptionNew context:nil];
@@ -38,11 +42,12 @@
     self.tableView.delegate=self;
     self.tableView.dataSource=self;
     [self.view addSubview:self.tableView];
-    self.tableView.tableHeaderView=[self creatHeaderViewWithMoney:@"560"];
+    self.tableView.tableHeaderView=[self creatHeaderViewWithMoney:self.model.price];
     self.tableView.tableFooterView=[self creatFooter];
     
     self.zhifubaoCell =[self creatCellWithImage:[UIImage imageNamed:@"zhifubao"] title:@"支付宝支付" tag:100];
     self.weixinCell =[self creatCellWithImage:[UIImage imageNamed:@"weixin"] title:@"微信支付" tag:101];
+    [BeeCloud setBeeCloudDelegate:self];
 }
 -(UIView *)creatHeaderViewWithMoney:(NSString *)money{
     UIView *header =[[UIView alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 100)];
@@ -80,10 +85,10 @@
     UIView *footer =[[UIView alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 100)];
     CGFloat ww =SCREEN_WIDTH/375.0*300;
     UIButton *payBtn =[[UIButton alloc]initWithFrame:CGRectMake(0, 0, ww, 50)];
-    [payBtn setImage:[UIImage imageNamed:@"payorders"] forState:UIControlStateSelected];
+    [payBtn setImage:[UIImage imageNamed:@"payorders"] forState:UIControlStateDisabled];
     [payBtn setImage:[UIImage imageNamed:@"payorder"] forState:UIControlStateNormal];
     [payBtn addTarget:self action:@selector(goToPay:) forControlEvents:UIControlEventTouchUpInside];
-    payBtn.selected=YES;
+    payBtn.enabled=NO;
     [footer addSubview:payBtn];
     payBtn.center=footer.center;
     return footer;
@@ -91,6 +96,15 @@
 
 -(void)goToPay:(UIButton *)sender{
     NSLog(@"确认支付");
+    NSLog(@"%ld",(long)self.currentSelectedIndex);
+    if (self.currentSelectedIndex ==100) {
+        //支付宝支付
+        [self doAliAppPay];
+    }else if (self.currentSelectedIndex ==101){
+        [self doWXAppPay];
+    }
+//    NSURL *url =[NSURL URLWithString:@"alipay://"];
+//    [[UIApplication sharedApplication]openURL:url];
 }
 
 
@@ -149,7 +163,7 @@
     if (self.currentSelectedIndex==sender.view.tag)return;
     self.currentSelectedIndex =sender.view.tag;
     UIButton *footerBtn =self.tableView.tableFooterView.subviews.lastObject;
-    footerBtn.selected=NO;
+    footerBtn.enabled=YES;
 }
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
     //object  当前控制器
@@ -172,4 +186,66 @@
 -(void)dealloc{
     [self removeObserver:self forKeyPath:@"currentSelectedIndex"];
 }
+#pragma mark - 微信支付
+- (void)doWXAppPay {
+    [self doPay:PayChannelWxApp];
+}
+
+#pragma mark - 支付宝
+- (void)doAliAppPay {
+    [self doPay:PayChannelAliApp];
+}
+
+#pragma mark - 银联在线
+- (void)doUnionPay {
+    [self doPay:PayChannelUnApp];
+}
+- (void)doPay:(PayChannel)channel {
+//    NSString *billno = [self genBillNo];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"value",@"key", nil];
+    
+    BCPayReq *payReq = [[BCPayReq alloc] init];
+    payReq.channel = channel;
+    payReq.title = billTitle;
+    payReq.totalFee =[NSString stringWithFormat:@"%d", (int)([self.model.price doubleValue]*100)]; ;
+    payReq.billNo = [NSString stringWithFormat:@"abcdefgh%@",self.model.ID];
+    payReq.scheme = @"AoYangBuild";
+    payReq.billTimeOut = 300;
+    payReq.viewController = self;
+    payReq.optional = dict;
+    [BeeCloud sendBCReq:payReq];
+}
+#pragma mark - 生成订单号
+- (NSString *)genBillNo {
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyyyMMddHHmmssSSS"];
+    return [formatter stringFromDate:[NSDate date]];
+}
+#pragma mark - BCPay回调
+-(void)onBeeCloudResp:(BCBaseResp *)resp{
+    
+    switch (resp.type) {
+        case BCObjsTypePayResp:
+        {
+            //支付响应事件类型，包含微信、支付宝、银联、百度
+            BCPayResp *tempResp = (BCPayResp *)resp;
+            if (tempResp.resultCode == 0) {
+                BCPayReq *payReq = (BCPayReq *)resp.request;
+                if (payReq.channel == PayChannelBaiduApp) {
+//                    [[BDWalletSDKMainManager getInstance] doPayWithOrderInfo:tempResp.paySource[@"orderInfo"] params:nil delegate:self];
+                } else {
+                    [self showAlertView:resp.resultMsg];
+                }
+            } else {
+                [self showAlertView:[NSString stringWithFormat:@"%@ : %@",tempResp.resultMsg, tempResp.errDetail]];
+            }
+        }
+            break;
+    }}
+- (void)showAlertView:(NSString *)msg {
+                UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"提示" message:msg delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                [alert show];
+}
+
+
 @end

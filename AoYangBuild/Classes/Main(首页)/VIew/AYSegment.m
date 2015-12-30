@@ -22,8 +22,8 @@
         _leftBtn =[[UIButton alloc]init];
         _leftBtn.highlighted=NO;
         _leftBtn.titleLabel.font=[UIFont systemFontOfSize:15];
-        [_leftBtn setTitle:@"文章" forState:UIControlStateNormal];
-        [_leftBtn setTitle:@"文章" forState:UIControlStateDisabled];
+        [_leftBtn setTitle:@"新闻" forState:UIControlStateNormal];
+        [_leftBtn setTitle:@"新闻" forState:UIControlStateDisabled];
         [_leftBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [_leftBtn setBackgroundImage:[UIImage imageNamed:@"Category selection box"] forState:UIControlStateDisabled];
         [_leftBtn setTitleColor:RGB(50, 144, 232, 1) forState:UIControlStateDisabled];

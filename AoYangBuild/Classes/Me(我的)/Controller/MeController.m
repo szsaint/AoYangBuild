@@ -253,9 +253,7 @@
 #pragma mark  ImagePicker delegate
 -(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info{
     UIImage *protraitImg =[info objectForKey:@"UIImagePickerControllerOriginalImage"];
-    NSLog(@"%@,",NSStringFromCGSize(protraitImg.size));
     protraitImg =[self imageByScalingToMaxSize:protraitImg];
-    NSLog(@"%@,",NSStringFromCGSize(protraitImg.size));
 
     ChoseImageController *chosecVC =[[ChoseImageController alloc]initWithImage:protraitImg cropFrame:CGRectMake(0,(SCREEN_HEIGHT-SCREEN_WIDTH)/2, self.view.width, self.view.width) limitScaleRatio:2.0];
     chosecVC.delegate=self;
@@ -391,7 +389,7 @@
     if (indexPath.section==1) {
         cell.imageName=@"Order";
         cell.title=@"预定订单";
-        cell.detailTitle=@"会议室、健身房";
+        cell.detailTitle=@"会议室、大屏";
 
     }
     return cell;

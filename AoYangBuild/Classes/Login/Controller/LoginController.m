@@ -88,7 +88,7 @@
 }
 -(void)loginBtnOnClick:(UIButton *)sender{
     [self.view endEditing:YES];
-    if (self.phoneNumber.text.length!=11||self.password.text.length<4) {
+    if (self.phoneNumber.text.length!=11||self.password.text.length<1) {
         UIAlertView *alert =[[UIAlertView alloc]initWithTitle:@"提示" message:@"请正确填写用户名和密码" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
         [alert show];
     }else{

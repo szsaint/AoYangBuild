@@ -47,7 +47,7 @@
 }
 
 -(void)setUI{
-    self.title=@"文章详情";
+    self.title=@"新闻详情";
     
     UIButton *commentCount =[[UIButton alloc]initWithFrame:CGRectMake(0, 0, 40, 40)];
     [commentCount setTitle:@"评论" forState:UIControlStateNormal];

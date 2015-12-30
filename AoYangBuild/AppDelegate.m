@@ -15,6 +15,7 @@
 #import "LoginController.h"
 
 #import <YTKNetwork/YTKNetworkConfig.h>
+#import <BeeCloud.h>
 
 
 #define userName  [[NSUserDefaults standardUserDefaults]objectForKey:@"username"]
@@ -43,7 +44,14 @@
         self.window.rootViewController=loginVc;
         [self.window makeKeyAndVisible];
     }
+    //请替换成自己的BeeCloud账户中的AppID和AppSecret
+    [BeeCloud initWithAppID:@"c92a2bb3-5f3b-4c21-9340-28eff0aca577" andAppSecret:@"d3aa3a10-50a8-4233-b813-4c9dce224541"];
     
+    //如果需要微信支付，请添加下面这行（自行替换微信APP ID）
+    [BeeCloud initWeChatPay:@"wx6ba16481575d6a82"];
+    
+//    //如果需要PayPal，请添加下面这行
+//    [BeeCloud initPayPal:@"AVT1Ch18aTIlUJIeeCxvC7ZKQYHczGwiWm8jOwhrREc4a5FnbdwlqEB4evlHPXXUA67RAAZqZM0H8TCR" secret:@"EL-fkjkEUyxrwZAmrfn46awFXlX-h2nRkyCVhhpeVdlSRuhPJKXx3ZvUTTJqPQuAeomXA8PZ2MkX24vF" sanBox:YES];
     return YES;
 }
 -(UITabBarController *)tabBarController{
@@ -85,6 +93,14 @@
 
     }
     return _tabBarController;
+}
+
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    if (![BeeCloud handleOpenUrl:url]) {
+        //handle其他类型的url
+    }
+    return YES;
 }
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

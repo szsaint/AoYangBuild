@@ -40,6 +40,10 @@
     CGFloat marginLeft =30;
     CGFloat margintop =10;
     
+    self.selectedView =[[UIView alloc]initWithFrame:CGRectMake(0, 0, 0.2*SCREEN_WIDTH, 110)];
+    self.selectedView.backgroundColor =appColor;
+    [self.contentView addSubview:self.selectedView];
+    self.selectedView.hidden=YES;
     //头像
     self.icon =[[UIImageView alloc]initWithFrame:CGRectMake(marginLeft, margintop, 40, 40)];
     //self.icon.backgroundColor=[UIColor greenColor];

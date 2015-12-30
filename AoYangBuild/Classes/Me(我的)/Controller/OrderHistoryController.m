@@ -14,8 +14,9 @@
 #import "ChargeApi.h"
 #import <MBProgressHUD.h>
 
-@interface OrderHistoryController ()
+@interface OrderHistoryController ()<UITableViewDelegate,UITableViewDataSource>
 @property (nonatomic,strong)NSArray *resultArray;
+@property (nonatomic,strong)UITableView *tableView;
 
 @end
 
@@ -29,13 +30,24 @@
 
     
 }
+-(UITableView *)tableView{
+    if (!_tableView) {
+        _tableView =[[UITableView alloc]initWithFrame:self.view.bounds];
+        _tableView.tableFooterView =[[UIView alloc]init];
+        _tableView.dataSource =self;
+        _tableView.delegate=self;
+        [self.view addSubview:_tableView];
+    }
+    return _tableView;
+}
 -(void)loadDate{
     [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     ChargeApi *api =[[ChargeApi alloc]initHad];
     [api startWithCompletionBlockWithSuccess:^(YTKBaseRequest *request) {
+        [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
         id result =[request responseJSONObject];
         if ([result  isKindOfClass:[NSArray class]]) {
-            [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+                [self showEmpty];
             return ;
         }
         NSDictionary *resultDic =result;

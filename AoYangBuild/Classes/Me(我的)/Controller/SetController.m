@@ -12,6 +12,7 @@
 #import "UserManeger.h"
 #import "ReSetUserInfoApi.h"
 #import <MBProgressHUD.h>
+#import "MyQRViewController.h"
 
 #define vcColor [UIColor colorWithRed:0.93 green:0.93 blue:0.93 alpha:1]
 @interface SetController ()<UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate,UIAlertViewDelegate>
@@ -75,8 +76,8 @@
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     static NSString *ID =@"set_cell";
-    NSArray *titleArr =@[self.nickname,@"手机号",@"密码设置"];
-    NSArray *iconArr =@[@"user",@"Phone",@"passWord"];
+    NSArray *titleArr =@[self.nickname,@"手机号",@"我的二维码"];
+    NSArray *iconArr =@[@"user",@"Phone",@"ercode"];
     AYMeCell *cell =[AYMeCell cellWithTableView:tableView identifier:ID];
     cell.imageName=iconArr[indexPath.row];
     cell.title=titleArr[indexPath.row];
@@ -117,7 +118,7 @@
         UITextField *textfield =[alert textFieldAtIndex:0];
         textfield.placeholder=@"请输入您要修改的昵称";
         [alert show];
-    }else if (indexPath.row==2){
+    }else if (indexPath.row==3){
 //        UIAlertView *alert =[[UIAlertView alloc]initWithTitle:@"修改密码" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
 //        alert.alertViewStyle=UIAlertViewStyleLoginAndPasswordInput;
 //        alert.tag=1;
@@ -141,6 +142,10 @@
         textfield.keyboardType=UIKeyboardTypeNumberPad;
         [alert show];
 
+    }else if (indexPath.row==2){
+        //我的二维码
+        MyQRViewController *vc =[[MyQRViewController alloc]init];
+        [self.navigationController pushViewController:vc animated:YES];
     }
     
 }

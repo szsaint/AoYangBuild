@@ -33,6 +33,7 @@
     // Dispose of any resources that can be recreated.
 }
 -(void)setUI{
+    self.title =@"等待审核";
     self.tableView.tableFooterView =[[UIView alloc]init];
     UILabel *nothingLab =[[UILabel alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 50)];
     nothingLab.textColor=[UIColor lightGrayColor];

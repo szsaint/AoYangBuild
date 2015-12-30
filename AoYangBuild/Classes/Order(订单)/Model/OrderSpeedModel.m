@@ -15,6 +15,8 @@
     NSString *detailtitle =dic[@"post_content"];
     NSString *price =dic[@"amount"];
     NSString *time =dic[@"post_date"];
+    NSString *post_name =dic[@"post_name"];
+    NSString *ID =dic[@"id"];
     if (time) {
         model.time=time;
     }
@@ -26,6 +28,12 @@
     }
     if (price) {
         model.price=price;
+    }
+    if (post_name) {
+        model.post_name =post_name;
+    }
+    if (ID) {
+        model.ID=ID;
     }
     return model;
 }

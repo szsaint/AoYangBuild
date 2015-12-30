@@ -78,6 +78,7 @@
 }
 -(void)payBtnOnClick:(UIButton *)sender{
     PayOrderController *payVC =[[PayOrderController alloc]init];
+    payVC.model=self.model;
     [self.navigationController pushViewController:payVC animated:YES];
     
 }

@@ -42,7 +42,7 @@
 }
 
 +(void)saveUserLoginInfo:(NSDictionary *)dic baseKey:(NSString *)basekey{
-    
+    NSUserDefaults *user =[NSUserDefaults standardUserDefaults];
     //username  ID  avatar roles basekey
     NSString *username =dic[@"username"];//user_login登陆的账号
     NSString *ID = [NSString stringWithFormat:@"%@",dic[@"ID"]];
@@ -52,16 +52,22 @@
     for (NSString *type in roles) {
         if ([type isEqualToString:@"contributor"]) {
             company =@"company";//公司管理者
+        }else if ([type isEqualToString:@"guard"]){
+            [user setValue:@"guard" forKey:@"guard"];
+            [[NSNotificationCenter defaultCenter]postNotificationName:@"guard" object:@{@"guard":@"guard"}];
+        }else{
+            [user removeObjectForKey:@"guard"];
+            [[NSNotificationCenter defaultCenter]postNotificationName:@"guard" object:nil];
         }
     }
     
     NSString *avatar =dic[@"avatar"];
-    NSUserDefaults *user =[NSUserDefaults standardUserDefaults];
+    NSString *isCompany =[user valueForKey:@"company"];
+    if (![isCompany isEqualToString:company]) {
+        [user setValue:company forKey:@"company"];
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"roleChange" object:nil];
+    }    
     [user setValue:username forKey:@"username"];
-    if (company) {
-        [user setValue:@"company" forKey:@"company"];
-    }
-    
     NSDictionary *metadic =dic[@"meta"];
     if ([metadic valueForKey:@"user_company"]!=[NSNull null]&&![[metadic valueForKey:@"user_company"] isKindOfClass:[NSString class]]) {
         NSDictionary *companyDic =metadic[@"user_company"];

@@ -13,6 +13,8 @@
 @property (nonatomic,copy)NSString *detailTitle;
 @property (nonatomic,copy)NSString *time;
 @property (nonatomic,copy)NSString *price;
+@property (nonatomic,copy)NSString *post_name;
+@property (nonatomic,copy)NSString *ID;
 +(instancetype)modelWithDic:(NSDictionary *)dic;
 
 @end

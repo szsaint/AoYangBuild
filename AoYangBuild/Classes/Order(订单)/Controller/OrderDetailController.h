@@ -6,8 +6,7 @@
 //  Copyright © 2015年 saint. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
-@interface OrderDetailController : UIViewController
+#import "AYBaseVC.h"
+@interface OrderDetailController : AYBaseVC
 
 @end

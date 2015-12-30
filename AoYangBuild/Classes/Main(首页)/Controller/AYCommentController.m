@@ -40,7 +40,7 @@
     return _tableView;
 }
 -(void)setUI{
-    self.title=@"文章评论";
+    self.title=@"新闻评论";
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
     
     //contentView评论

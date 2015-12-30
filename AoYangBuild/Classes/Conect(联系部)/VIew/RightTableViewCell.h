@@ -13,5 +13,6 @@
 @property(nonatomic,strong)UILabel *name;
 @property(nonatomic,strong)UILabel *position;
 @property(nonatomic,strong)UILabel *phoneNumber;
+@property(nonatomic,strong)UIView *selectedView;
 +(instancetype)cellWithTableView:(UITableView *)tableView identifiter:(NSString *)identifier;
 @end
