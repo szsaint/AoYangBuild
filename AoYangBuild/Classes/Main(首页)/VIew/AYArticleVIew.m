@@ -164,6 +164,7 @@
 //    
   //  self.commentImage.frame=self.frameModel.commentImageF;
     self.line.frame=self.frameModel.lineF;
+    self.firstImage.frame=CGRectZero;
 }
 -(void)onePic{
     self.frame =self.frameModel.articleF;

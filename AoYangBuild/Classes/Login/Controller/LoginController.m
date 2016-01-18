@@ -31,7 +31,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setUI];
-    self.view.backgroundColor=[UIColor colorWithPatternImage:[UIImage imageNamed:@"background"]];
+//    self.view.backgroundColor=[UIColor colorWithPatternImage:[UIImage imageNamed:@"background"]];
+    self.view.backgroundColor =appColor;
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardStadus) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardStadusHide) name:UIKeyboardWillHideNotification object:nil];
 }
